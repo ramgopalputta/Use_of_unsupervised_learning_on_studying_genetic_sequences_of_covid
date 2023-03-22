@@ -1,0 +1,89 @@
+#Libraries imported:
+
+library(ISLR2)
+library(ggplot2)
+library(dplyr)
+library(RSpectra)
+library(softImpute)
+
+
+# Importing the data:
+df_covid <- read.csv('datafile.csv', header = TRUE, sep = ',')
+
+
+
+# Imputing the data to fill the NA values:
+
+Xtrue <- covid_1 %>% select(-date) %>% as.matrix()
+corrupt <- Xtrue
+set.seed(1)
+data_1 <- softImpute(corrupt, rank=2, lambda=100, trace.it = TRUE)
+d_frame <- complete(corrupt,data_1)
+
+
+
+# Converting matrix form to data frame
+
+dataframe_data <- as.data.frame(d_frame) 
+dim (dataframe_data)
+
+
+
+# Applying PCA:
+
+pca.out <- prcomp(dataframe_data, scale = FALSE)
+pca.out
+names(pca.out)
+summary(pca.out)
+
+
+
+# Plotting the variance explained
+
+plot (pca.out)
+pve <- 100 * pca.out$sdev^2 / sum (pca.out$sdev^2)
+
+
+
+# Scree plots:
+
+par(mfrow = c(1, 2))
+plot (pve , type = "o", ylab = "PVE",
+xlab = "Principal Component", col = "blue")
+plot ( cumsum (pve), type = "o", ylab = "Cumulative PVE",
+xlab = "Principal Component", col = "brown3")
+
+
+
+# Kmeans clustering: (3 clusters)
+
+km.out <- kmeans(pca.out$x, 3, nstart = 50)
+km.out$cluster
+par (mfrow = c(1, 1))
+plot (pca.out$x[, 1:2], col = (km.out$cluster + 1), main = "K- Means Clustering", 
+xlab = "PC1", ylab = "PC2", pch = 20, cex = 2)
+
+
+
+# Kmeans clustering (4 clusters):
+
+km.out <- kmeans(pca.out$x, 4, nstart = 50)
+km.out$cluster
+par (mfrow = c(1, 1))
+plot (pca.out$x[, 1:2], col = (km.out$cluster + 1), main = "K- Means Clustering", xlab = "PC1", ylab = 
+"PC2", pch = 20, cex = 2)
+
+
+
+
+REFERENCES:
+https://www.statlearning.com/
+(Textbook: An Introduction to Statistical Learning with Applications in R Second Edition)
+
+
+
+
+
+
+
+
